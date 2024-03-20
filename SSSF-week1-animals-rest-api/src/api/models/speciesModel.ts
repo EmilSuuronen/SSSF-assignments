@@ -1,6 +1,7 @@
 import promisePool from '../../database/db';
 import {Species} from '../../types/DBTypes';
 import {RowDataPacket} from 'mysql2';
+import CustomError from '../../classes/CustomError';
 
 const getAllSpecies = async (): Promise<Species[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Species[]>(
@@ -18,9 +19,9 @@ const getSpeciesById = async (id: number) => {
     [id]
   );
   if (!rows) {
-    throw new Error('No species found');
+    throw new CustomError('Not found!', 404);
   }
-  return rows[0] as Species;
+  return rows[0];
 };
 
 export {getAllSpecies, getSpeciesById};

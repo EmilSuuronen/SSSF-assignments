@@ -2,6 +2,7 @@
 import promisePool from '../../database/db';
 import {Animals} from '../../types/DBTypes';
 import {RowDataPacket} from 'mysql2';
+import CustomError from '../../classes/CustomError';
 
 const getAllAnimals = async (): Promise<Animals[]> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Animals[]>(
@@ -19,9 +20,9 @@ const getAnimalById = async (id: number) => {
     [id]
   );
   if (!rows) {
-    throw new Error('No animals found');
+    throw new CustomError('Not found!', 404);
   }
-  return rows[0] as Animals;
+  return rows[0];
 };
 
 export {getAllAnimals, getAnimalById};

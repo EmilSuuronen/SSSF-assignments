@@ -1,6 +1,7 @@
 import promisePool from '../../database/db';
 import {Category} from '../../types/DBTypes';
 import {RowDataPacket} from 'mysql2';
+import CustomError from '../../classes/CustomError';
 
 const getAllCategories = async () => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Category[]>(
@@ -18,9 +19,9 @@ const getCategoryById = async (id: number) => {
     [id]
   );
   if (!rows) {
-    throw new Error('No categories found');
+    throw new CustomError('Not found!', 404);
   }
-  return rows[0] as Category;
+  return rows[0];
 };
 
 export {getAllCategories, getCategoryById};
