@@ -1,4 +1,0 @@
-{
-    "appService.defaultWebAppToDeploy": "undefined/subscriptions/e9d37e16-dd67-45b0-bc53-ae64cbae738c/resourceGroups/sssf/providers/Microsoft.Web/sites/sssf-rest-mongo",
-    "appService.deploySubpath": "dist"
-}
