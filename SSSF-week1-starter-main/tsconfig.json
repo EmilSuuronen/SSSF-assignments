@@ -13,8 +13,12 @@
   "include": [
     "./*.js",
     "src/**/*.ts",
+    "src/**/*.d.ts",
     "test/**/*.ts",
     "src/types/CustomError.ts",
     "src/types"
-  ]
+  ],
+  "ts-node":{
+    "files":true
+  }
 }
