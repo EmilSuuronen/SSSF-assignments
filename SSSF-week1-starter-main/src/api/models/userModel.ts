@@ -33,7 +33,7 @@ const getUser = async (userId: number): Promise<User> => {
 };
 
 // TODO: create addUser function
-const addUser = async (user: User): Promise<MessageResponse> => {
+const addUser = async (user: Partial<User>): Promise<MessageResponse> => {
   const [rows] = await promisePool.execute<ResultSetHeader>(
     'INSERT INTO sssf_user (user_name, email, password, role) VALUES (?, ?, ?, ?);',
     [user.user_name, user.email, user.password, user.role]

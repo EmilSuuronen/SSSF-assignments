@@ -46,10 +46,10 @@ const userGet = async (
 // user_name should be at least 3 characters long
 // email should be a valid email
 // password should be at least 5 characters long
-// userPost should use bcrypt to hash password
-// userPost should return the result from addUser function
+// userPost uses bcrypt to hash password
+// userPost returns the result from addUser function
 const userPost = async (
-  req: Request<{}, {}, User>,
+  req: Request<{}, {}, Partial<User>>,
   res: Response<MessageResponse>,
   next: NextFunction
 ) => {
@@ -64,9 +64,16 @@ const userPost = async (
     return;
   }
   try {
-    const user = req.body;
-    user.password = bcrypt.hashSync(user.password, salt);
-    const result = await addUser(user);
+    if (!req.body.password) {
+      throw new CustomError('Password is required', 400);
+    }
+    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+    const _user: Partial<User> = {
+      ...req.body,
+      password: hashedPassword,
+      role: 'user',
+    };
+    const result = await addUser(_user);
     res.json(result);
   } catch (error) {
     next(error);

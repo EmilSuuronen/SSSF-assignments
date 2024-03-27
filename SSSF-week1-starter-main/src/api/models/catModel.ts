@@ -25,32 +25,25 @@ const getAllCats = async (): Promise<Cat[]> => {
 };
 
 // TODO: create getCat function to get single cat
-const getCat = async (catId: number): Promise<Cat> => {
+const getCat = async (id: number): Promise<Cat> => {
   const [rows] = await promisePool.execute<RowDataPacket[] & Cat[]>(
-    `
-        SELECT cat_id, cat_name, weight, filename, birthdate, ST_X(coords) as lat, ST_Y(coords) as lng,
-        JSON_OBJECT('user_id', sssf_user.user_id, 'user_name', sssf_user.user_name) AS owner 
-        FROM sssf_cat 
-        JOIN sssf_user 
-        ON sssf_cat.owner = sssf_user.user_id
-        WHERE cat_id = ?;
-        `,
-    [catId]
+    `SELECT cat_id, cat_name, weight, owner, filename, birthdate, coords, sssf_user.user_id
+     FROM sssf_cat 
+     JOIN sssf_user ON sssf_cat.owner = sssf_user.user_id 
+     WHERE cat_id = id;`,
+    [id]
   );
+
   if (rows.length === 0) {
     throw new CustomError('No cats found', 404);
   }
-  const cat = (rows as Cat[]).map((row) => ({
-    ...row,
-    owner: JSON.parse(row.owner?.toString() || '{}'),
-  }))[0];
 
-  return cat;
+  return rows[0];
 };
 
 // TODO: use Utility type to modify Cat type for 'data'.
 // Note that owner is not User in this case. It's just a number (user_id)
-const addCat = async (data: Cat, owner: number): Promise<MessageResponse> => {
+const addCat = async ({data}: {data: any}): Promise<MessageResponse> => {
   const [headers] = await promisePool.execute<ResultSetHeader>(
     `
     INSERT INTO sssf_cat (cat_name, weight, owner, filename, birthdate, coords) 
@@ -59,7 +52,7 @@ const addCat = async (data: Cat, owner: number): Promise<MessageResponse> => {
     [
       data.cat_name,
       data.weight,
-      owner,
+      data.owner,
       data.filename,
       data.birthdate,
       data.lat,

@@ -10,6 +10,7 @@ import CustomError from '../../classes/CustomError';
 import {validationResult} from 'express-validator';
 import {MessageResponse} from '../../types/MessageTypes';
 import {Cat, User} from '../../types/DBTypes';
+import sharp from 'sharp';
 
 const catListGet = async (
   _req: Request,
@@ -45,41 +46,43 @@ const catGet = async (req: Request, res: Response<Cat>, next: NextFunction) => {
   }
 };
 
-// TODO: create catPost function to add new cat
-// catPost uses addCat function from catModel
-// catPost uses validationResult to validate req.body
-// catPost uses req.file to get filename
-// catPost uses res.locals.coords to get lat and lng (see middlewares.ts)
-// catPost uses req.user to get user_id and role (see passport/index.ts and express.d.ts)
-// catPost returns the result from addCat function
+type CatPostData = Omit<Cat, 'cat_id' | 'owner'> & {
+  owner: number;
+  lat: number;
+  lng: number;
+};
+
 const catPost = async (
-  req: Request<{}, {}, Cat>,
+  req: Request<{}, {}, CatPostData, {}>,
   res: Response<MessageResponse>,
   next: NextFunction
 ) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const messages: string = errors
-      .array()
-      .map((error) => `${error.msg}: ${error.param}`)
-      .join(', ');
-    console.log('cat_post validation', messages);
-    next(new CustomError(messages, 400));
-    return;
-  }
   try {
-    const cat = req.body;
-    if (!req.file || !req.user?.user_id) {
-      next(new CustomError('No file uploaded', 400));
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.error('catPost validation', errors.array());
+      next(new CustomError('Validation failed', 400));
       return;
     }
-    cat.filename = req.file.filename;
-    cat.lat = res.locals.coords.lat;
-    cat.lng = res.locals.coords.lng;
-    const result = await addCat(cat, req.user.user_id);
-    res.json(result);
-  } catch (error) {
-    next(error);
+
+    if (!req.user?.user_id || !req.file?.filename) {
+      next(new CustomError('Unauthorized', 401));
+      return;
+    }
+    const data: CatPostData = {
+      cat_name: req.body.cat_name,
+      birthdate: req.body.birthdate,
+      weight: req.body.weight,
+      owner: req.user.user_id,
+      filename: req.file.filename,
+      lat: res.locals.coords[0],
+      lng: res.locals.coords[1],
+    };
+
+    const result = await addCat({data: data});
+    res.json({message: 'Cat added'});
+  } catch (e) {
+    next(e);
   }
 };
 
