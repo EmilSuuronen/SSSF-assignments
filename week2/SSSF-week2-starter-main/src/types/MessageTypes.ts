@@ -1,4 +1,4 @@
-import {UserOutput} from './DBTypes';
+import {userData} from './DBTypes';
 
 type MessageResponse = {
   message: string;
@@ -10,7 +10,7 @@ type ErrorResponse = MessageResponse & {
 
 type LoginResponse = {
   token: string;
-  user: UserOutput;
+  user: userData;
 };
 
 type UploadResponse = MessageResponse & {

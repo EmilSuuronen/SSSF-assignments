@@ -9,7 +9,7 @@ type User = Partial<Document> & {
   password: string;
 };
 
-type UserOutput = Omit<User, 'password' | 'role'>;
+type userData = Omit<User, 'password' | 'role'>;
 
 type UserInput = Omit<User, '_id' | 'role'>;
 
@@ -29,4 +29,4 @@ type Cat = Partial<Document> & {
 
 type CatTest = Partial<Cat>;
 
-export {User, UserOutput, UserInput, UserTest, LoginUser, Cat, CatTest};
+export {User, userData, UserInput, UserTest, LoginUser, Cat, CatTest};

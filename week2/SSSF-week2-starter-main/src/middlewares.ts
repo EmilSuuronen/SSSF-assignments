@@ -5,7 +5,7 @@ import {ExifImage} from 'exif';
 import {ErrorResponse} from './types/MessageTypes';
 import CustomError from './classes/CustomError';
 import jwt from 'jsonwebtoken';
-import {UserOutput} from './types/DBTypes';
+import {userData} from './types/DBTypes';
 import userModel from './api/models/userModel';
 
 // convert GPS coordinates to decimal format
@@ -113,7 +113,7 @@ const authenticate = async (
     const tokenContent = jwt.verify(
       token,
       process.env.JWT_SECRET as string
-    ) as UserOutput;
+    ) as userData;
 
     // check if user exists in database (optional)
     // const user = await userModel.findById(tokenContent._id);
